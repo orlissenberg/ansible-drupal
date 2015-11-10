@@ -1,0 +1,11 @@
+---
+# defaults file for ansible-drupal
+
+drupal_source_filename: drupal-8.0.0-rc2.tar.gz
+drupal_source_url: "http://ftp.drupal.org/files/projects/{{ drupal_source_filename }}"
+drupal_source_directory: drupal-8.0.0-rc2
+drupal_drush_user: root
+
+drupal_sites:
+  - site_name: drupal-demo
+    site_path: /var/www/drupal-demo

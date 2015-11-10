@@ -1,0 +1,23 @@
+---
+# tasks file for ansible-drupal
+
+- get_url: url={{ drupal_source_url }} mode=0644 validate_certs=False
+  args:
+      dest: /tmp/{{ drupal_source_filename }}
+
+- unarchive: src=/tmp/{{ drupal_source_filename }} dest=/tmp
+  args:
+    copy: no
+    creates: /tmp/{{ drupal_source_directory }}
+
+- shell: cp -R /tmp/{{ drupal_source_directory }} {{ item.site_path }}
+  args:
+    creates: "{{ item.site_path }}"
+  with_items: drupal_sites
+
+# Failed: GitHub asking for a token?
+#
+#- shell: composer update
+#  args:
+#    chdir: "{{ item.site_path }}"
+#  with_items: drupal_sites

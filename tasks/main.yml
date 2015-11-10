@@ -1,0 +1,29 @@
+---
+# tasks file for ansible-drupal
+
+# Install via Drush
+# https://github.com/drush-ops/drush
+
+- get_url: url=https://getcomposer.org/composer.phar mode=0755 # validate_certs=False
+  args:
+    dest: /usr/local/bin/composer
+
+- shell: /usr/local/bin/composer self-update
+
+- stat: path=~/.zshrc
+  register: drupal_zshrc
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+
+- lineinfile: dest=~/.zshrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+  when: drupal_zshrc.stat.exists == True
+
+- name: Install Drush
+  get_url: url=https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar mode=0755
+  args:
+    dest: /usr/local/bin/drush
+
+- name: Test Drush installation
+  shell: drush status
