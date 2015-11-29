@@ -1,0 +1,29 @@
+---
+
+- get_url: url=https://getcomposer.org/composer.phar mode=0755 # validate_certs=False
+  args:
+    dest: /usr/local/bin/composer
+
+- shell: /usr/local/bin/composer self-update
+
+# Register composer vendor directory in zshrc
+- stat: path=~/.zshrc
+  register: drupal_zshrc
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+
+- lineinfile: dest=~/.zshrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+  when: drupal_zshrc.stat.exists == True
+
+# Register composer vendor directory in bashrc
+- stat: path=~/.bashrc
+  register: drupal_bashrc
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+
+- lineinfile: dest=~/.bashrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
+  sudo: yes
+  sudo_user: "{{ drupal_drush_user }}"
+  when: drupal_bashrc.stat.exists == True

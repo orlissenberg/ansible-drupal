@@ -1,29 +1,37 @@
 ---
 # tasks file for ansible-drupal
 
+- user: name={{ drupal_drush_user }} shell=/bin/bash groups={{ drupal_nginx_group }} append=yes createhome=yes
+
 # Install via Drush
 # https://github.com/drush-ops/drush
 
-- get_url: url=https://getcomposer.org/composer.phar mode=0755 # validate_certs=False
+# Install composer.
+- include: composer.yml
+
+# Install drush
+- include: drush.yml
+
+# http://echo.co/blog/more-drop-bucket-drupal-8-nginx-and-microcaching
+# sudo drush dl drupal-8 --destination=/var/www --drupal-project-rename=drupal-demo
+# sudo cd drupal-demo
+# sudo composer update
+# sudo drush site-install --db-url=mysql://root:i_am_root@127.0.0.1/drupaldemo --account-mail=orlissenberg@gmail.com --account-name=admin --account-pass=sure
+
+- name: Set the correct access rights on the drupal site paths
+  shell: chown {{ drupal_drush_user }}:{{ drupal_nginx_group }} -R {{ item.site_path }}
+  with_items: drupal_sites
+
+- name: Create nginx configuration for each site
+  template: src=drupal.conf.j2 dest=/etc/nginx/sites-available/{{ item.site_name }}.conf
+  with_items: drupal_sites
+
+- name: Enable the sites
+  file: src=/etc/nginx/sites-available/{{ item.site_name }}.conf dest=/etc/nginx/sites-enabled/{{ item.site_name }}.conf
+  with_items: drupal_sites
   args:
-    dest: /usr/local/bin/composer
+    owner: root
+    group: root
+    state: link
 
-- shell: /usr/local/bin/composer self-update
-
-- stat: path=~/.zshrc
-  register: drupal_zshrc
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
-
-- lineinfile: dest=~/.zshrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
-  when: drupal_zshrc.stat.exists == True
-
-- name: Install Drush
-  get_url: url=https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar mode=0755
-  args:
-    dest: /usr/local/bin/drush
-
-- name: Test Drush installation
-  shell: drush status
+- service: name=nginx state=restarted

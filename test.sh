@@ -14,7 +14,13 @@ EOF
 mkdir -p $TMP_DIR/group_vars 2> /dev/null
 cat << EOF > $TMP_DIR/group_vars/webservers
 
-drupal_drush_user: debian
+drupal_drush_user: drush
+drupal_sites:
+  - site_name: drupal-demo
+    site_domain: drupal-demo.local
+    site_path: /var/www/drupal-demo
+    site_access_log_path: "/var/www/drupal-demo/drupal-demo.access.log"
+    site_error_log_path: "/var/www/drupal-demo/drupal-demo.error.log"
 
 EOF
 
