@@ -6,9 +6,19 @@ drupal_drush_user: drush
 drupal_nginx_user: www-data
 drupal_nginx_group: www-data
 
+drupal_php_major_version: 7
+
+drupal_mysql_user: root
+drupal_mysql_pass: i_am_root
+drupal_github_oauth: null
+
 drupal_sites:
   - site_name: drupal-demo
     site_domain: drupal-demo.local
     site_path: /var/www/drupal-demo
-    site_access_log_path: "/var/log/nginx/{{ item.site_name }}.access.log"
-    site_error_log_path: "/var/log/nginx/{{ item.site_name }}.error.log"
+    site_access_log_path: "/var/www/drupal-demo/drupal-demo.access.log"
+    site_error_log_path: "/var/www/drupal-demo/drupal-demo.error.log"
+    site_database_name: drupaldemo
+    site_account_name: admin
+    site_account_pass: pass
+    site_account_mail: admin@drupal-demo.local

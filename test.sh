@@ -14,13 +14,7 @@ EOF
 mkdir -p $TMP_DIR/group_vars 2> /dev/null
 cat << EOF > $TMP_DIR/group_vars/webservers
 
-drupal_drush_user: drush
-drupal_sites:
-  - site_name: drupal-demo
-    site_domain: drupal-demo.local
-    site_path: /var/www/drupal-demo
-    site_access_log_path: "/var/www/drupal-demo/drupal-demo.access.log"
-    site_error_log_path: "/var/www/drupal-demo/drupal-demo.error.log"
+drupal_drush_user: drupal
 
 EOF
 
@@ -41,12 +35,17 @@ cat << EOF > $TMP_DIR/playbook.yml
 
   roles:
     - ansible-drupal
+
+  vars_prompt:
+    - name: "drupal_github_oauth"
+      prompt: "Enter GitHub OAuth"
+      when: drupal_github_oauth == null
 EOF
 
 export ANSIBLE_CONFIG=$TMP_DIR/ansible.cfg
 
 # Syntax check
-ansible-playbook $TMP_DIR/playbook.yml -i $TMP_DIR/hosts --syntax-check
+# ansible-playbook $TMP_DIR/playbook.yml -i $TMP_DIR/hosts --syntax-check
 
 # First run
 ansible-playbook $TMP_DIR/playbook.yml -i $TMP_DIR/hosts
