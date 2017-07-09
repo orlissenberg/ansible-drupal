@@ -1,0 +1,55 @@
+server {
+    listen 80;
+    root {{ item.site_path }};
+    server_name {{ item.site_domain }} www.{{ item.site_domain }};
+
+    access_log on;
+    access_log {{ item.site_access_log_path }};
+    error_log {{ item.site_error_log_path }};
+
+    # Block access to "hidden" files and directories whose names begin with a
+    # period. This includes directories used by version control systems such
+    # as Subversion or Git to store control files.
+    location ~ (^|/)\. {
+        return 403;
+    }
+
+    location / {
+        try_files $uri @rewrite;
+    }
+
+    location @rewrite {
+        rewrite ^ /index.php;
+    }
+
+    location ~ \.php$ {
+        # Defines a regular expression that captures a value for the $fastcgi_path_info variable.
+        # The regular expression should have two captures: the first becomes a value of the
+        # $fastcgi_script_name variable, the second becomes a value of the $fastcgi_path_info variable.
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+        fastcgi_index index.php;
+        fastcgi_intercept_errors off;
+        fastcgi_pass unix:/var/run/php/php7.1-fpm.sock;
+
+        try_files $uri =404; # This is not needed if you have cgi.fix_pathinfo = 0 in php.ini (you should!)
+    }
+
+    # Fighting with ImageCache? This little gem is amazing.
+    location ~ ^/sites/.*/files/imagecache/ {
+        try_files $uri @rewrite;
+    }
+
+    # Catch image styles for D7 too.
+    location ~ ^/sites/.*/files/styles/ {
+        try_files $uri @rewrite;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+        expires max;
+        log_not_found off;
+    }
+}

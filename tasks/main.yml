@@ -1,8 +1,9 @@
 ---
 # tasks file for ansible-drupal
 
-#- name: Include Github tasks
-#  include: github.yml
+- name: Include Github tasks
+  include: github.yml
+  when: not (drupal_github_oauth == false)
 
 - name: Create Drupal Drush user
   user: name={{ item }} shell=/bin/bash groups={{ drupal_nginx_group }} append=yes createhome=yes
@@ -10,12 +11,19 @@
 
 - name: Include Composer tasks
   include: composer.yml
+  when: drupal_composer_tasks == true
 
 - name: Include Drupal Console tasks
   include: drupal-console.yml
+  when: drupal_console_tasks == true
 
-#- name: Include Drush tasks
-#  include: drush.yml
+- name: Include Drush tasks
+  include: drush.yml
+  when: drupal_drush_tasks == true
 
-#- name: restart Nginx
-#  service: name=nginx state=restarted
+- name: Create sites
+  include: site.yml
+  with_items: "{{ drupal_sites }}"
+
+- name: restart Nginx
+  service: name=nginx state=restarted

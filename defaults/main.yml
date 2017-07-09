@@ -1,30 +1,36 @@
 ---
 # defaults file for ansible-drupal
 
+# GIT
+drupal_github_oauth: false
+
+# Composer
 drupal_composer_version: "1.4.1"
 drupal_composer_sha256: "abd277cc3453be980bb48cbffe9d1f7422ca1ef4bc0b7d035fda87cea4d55cbc"
+drupal_composer_tasks: true
 
+# Console
 drupal_console_version: "﻿1.0.0-rc23"
 drupal_console_sha256: "acfc42f11c0a8e794f7bd5a1eb45f687fc3f09a3cedbc39b582d6ecee3375669"
+drupal_console_tasks: true
 
-drupal_drush_user: drush
+# Drush
+drupal_drush_version: "8.1.12"
+drupal_drush_sha256: "26bba4db13332c8b43c02c4261f4b8e864eb12d5712d125e26bad3c112418a53"
+drupal_drush_tasks: true
+drupal_drush_users:
+  - root
 
+# Nginx
 drupal_nginx_user: www-data
 drupal_nginx_group: www-data
 
-drupal_php_major_version: 7
+# PHP Version (for Nginx configurations)
+drupal_php_version: 7.1
 
-drupal_mysql_user: root
-drupal_mysql_pass: i_am_root
-drupal_github_oauth: null
+# Sites to install
+drupal_sites: []
 
-drupal_sites:
-  - site_name: drupal-demo
-    site_domain: drupal-demo.local
-    site_path: /var/www/drupal-demo
-    site_access_log_path: "/var/www/drupal-demo/drupal-demo.access.log"
-    site_error_log_path: "/var/www/drupal-demo/drupal-demo.error.log"
-    site_database_name: drupaldemo
-    site_account_name: admin
-    site_account_pass: pass
-    site_account_mail: admin@drupal-demo.local
+# MySQL
+drupal_mysql_admin_user: false
+drupal_mysql_admin_password: false

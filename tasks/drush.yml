@@ -1,15 +1,23 @@
 ---
 
-# Install via Drush
+# Drush
 # https://github.com/drush-ops/drush
+# https://drushcommands.com/
 
-- name: Install Drush
-  get_url: url=https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar mode=0755
+- name: Download file
+  get_url: url="https://github.com/drush-ops/drush/releases/download/{{ drupal_drush_version }}/drush.phar" mode="u=rwx,g=rx,o=rx" validate_certs=true
   args:
-    dest: /usr/local/bin/drush
+      dest: /tmp/drush-{{ drupal_drush_version }}.phar
 
-- name: Test Drush installation
-  shell: source /home/{{ drupal_drush_user }}/.zshrc && drush status
+- name: Create sha256sum file
+  shell: "echo \"{{ drupal_drush_sha256 }}  drush-{{ drupal_drush_version }}.phar\" > drush-{{ drupal_drush_version }}.phar.sha256"
   args:
-     executable: /bin/bash
-  when: drupal_zshrc.stat.exists == True
+    chdir: /tmp
+
+- name: Perform sha256sum
+  shell: sha256sum drush-{{ drupal_drush_version }}.phar.sha256 -c
+  args:
+    chdir: /tmp
+
+- name: Move
+  shell: mv /tmp/drush-{{ drupal_drush_version }}.phar /usr/local/bin/drush
