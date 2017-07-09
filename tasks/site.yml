@@ -1,0 +1,40 @@
+---
+
+# http://echo.co/blog/more-drop-bucket-drupal-8-nginx-and-microcaching
+- name: Download Drupal 8 source with Drush
+  shell: source ~/.bashrc && drush dl drupal-8 --destination=/var/www --drupal-project-rename={{ item.site_name }}
+  args:
+    executable: /bin/bash
+  with_items: drupal_sites
+
+# --prefer-source or --prefer-dist (zipped) - In either case, the API is not used.
+- name: Download vendor packages
+  shell: source ~/.bashrc && composer install --prefer-source
+  args:
+    chdir: /var/www/{{ item.site_name }}
+    executable: /bin/bash
+  with_items: drupal_sites
+
+- name: Create MySQL Database
+  shell: source ~/.bashrc && drush site-install --db-url=mysql://{{ drupal_mysql_user }}:{{ drupal_mysql_user }}@127.0.0.1/{{ item.site_database_name }} \
+    --account-mail={{ item.site_account_mail }} --account-name={{ item.site_account_name }} --account-pass={{ item.site_account_pass }} -y
+  args:
+    chdir: /var/www/{{ item.site_name }}
+    executable: /bin/bash
+  with_items: drupal_sites
+
+- name: Set the correct access rights on the drupal site paths
+  shell: chown {{ drupal_drush_user }}:{{ drupal_nginx_group }} -R {{ item.site_path }}
+  with_items: drupal_sites
+
+- name: Create nginx configuration for each site
+  template: src=php{{ drupal_php_major_version }}-drupal.conf.j2 dest=/etc/nginx/sites-available/{{ item.site_name }}.conf
+  with_items: drupal_sites
+
+- name: Enable the sites
+  file: src=/etc/nginx/sites-available/{{ item.site_name }}.conf dest=/etc/nginx/sites-enabled/{{ item.site_name }}.conf
+  with_items: drupal_sites
+  args:
+    owner: root
+    group: root
+    state: link

@@ -1,0 +1,23 @@
+---
+
+# Register composer vendor directory in zshrc
+- name: Check existence .zshrc
+  stat: path=~/.zshrc
+  register: drupal_zshrc
+  become_user: "{{ item }}"
+
+- lineinfile: dest=~/.zshrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
+  become: yes
+  become_user: "{{ item }}"
+  when: drupal_zshrc.stat.exists == true
+
+# Register composer vendor directory in bashrc
+- name: Check existence .bashrc
+  stat: path=~/.bashrc
+  register: drupal_bashrc
+  become_user: "{{ item }}"
+
+- lineinfile: dest=~/.bashrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
+  become: yes
+  become_user: "{{ item }}"
+  when: drupal_bashrc.stat.exists == true

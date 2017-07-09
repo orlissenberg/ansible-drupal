@@ -1,0 +1,7 @@
+---
+
+- name: Composer github authentication
+  shell: source ~/.bashrc && composer config --global github-oauth.github.com {{ drupal_github_oauth }}
+  args:
+      executable: /bin/bash
+  ignore_errors: yes

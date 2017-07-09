@@ -1,12 +1,15 @@
 ---
 
+# Install via Drush
+# https://github.com/drush-ops/drush
+
 - name: Install Drush
   get_url: url=https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar mode=0755
   args:
     dest: /usr/local/bin/drush
 
-# Test installation
-- shell: source /home/{{ drupal_drush_user }}/.zshrc && drush status
+- name: Test Drush installation
+  shell: source /home/{{ drupal_drush_user }}/.zshrc && drush status
   args:
      executable: /bin/bash
   when: drupal_zshrc.stat.exists == True

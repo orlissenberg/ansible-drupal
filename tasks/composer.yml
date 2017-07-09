@@ -1,29 +1,26 @@
 ---
 
-- get_url: url=https://getcomposer.org/composer.phar mode=0755 # validate_certs=False
+- name: Download file
+  get_url: url=https://getcomposer.org/download/{{ drupal_composer_version }}/composer.phar mode="u=rwx,g=rx,o=rx" validate_certs=false
   args:
-    dest: /usr/local/bin/composer
+    headers: "User-Agent:Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"
+    dest: /tmp/composer-{{ drupal_composer_version }}.phar
 
-- shell: /usr/local/bin/composer self-update
+- name: Create sha256sum file
+  shell: "echo \"{{ drupal_composer_sha256 }}  composer-{{ drupal_composer_version }}.phar\" > composer-{{ drupal_composer_version }}.phar.sha256"
+  args:
+    chdir: /tmp
 
-# Register composer vendor directory in zshrc
-- stat: path=~/.zshrc
-  register: drupal_zshrc
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
+- name: Perform sha256sum
+  shell: sha256sum composer-{{ drupal_composer_version }}.phar.sha256 -c
+  args:
+    chdir: /tmp
 
-- lineinfile: dest=~/.zshrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
-  when: drupal_zshrc.stat.exists == True
+- name: Copy composer to /usr/local/bin
+  shell: mv /tmp/composer-{{ drupal_composer_version }}.phar /usr/local/bin/composer
 
-# Register composer vendor directory in bashrc
-- stat: path=~/.bashrc
-  register: drupal_bashrc
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
+- name: Self-update composer
+  shell: /usr/local/bin/composer self-update
 
-- lineinfile: dest=~/.bashrc line="export PATH=\"$HOME/.composer/vendor/bin:$PATH\"" state=present
-  sudo: yes
-  sudo_user: "{{ drupal_drush_user }}"
-  when: drupal_bashrc.stat.exists == True
+- include: composer_vendor.yml
+  with_items: "{{ drupal_drush_users }}"
