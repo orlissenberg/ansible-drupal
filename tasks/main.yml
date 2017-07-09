@@ -11,8 +11,11 @@
 - name: Include Composer tasks
   include: composer.yml
 
+- name: Include Drupal Console tasks
+  include: drupal-console.yml
+
 #- name: Include Drush tasks
 #  include: drush.yml
-#
+
 #- name: restart Nginx
 #  service: name=nginx state=restarted

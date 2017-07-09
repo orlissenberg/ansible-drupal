@@ -1,0 +1,27 @@
+---
+
+- name: Install Drupal Console Launcher
+  get_url: url="https://drupalconsole.com/installer" mode="u=rwx,g=rx,o=rx" validate_certs=true
+  args:
+      dest: /tmp/drupal.phar
+
+- name: Create sha256sum file
+  shell: "echo \"{{ drupal_console_sha256 }}  drupal.phar\" > drupal.phar.sha256"
+  args:
+    chdir: /tmp
+
+- name: Perform sha256sum
+  shell: sha256sum drupal.phar.sha256 -c
+  args:
+    chdir: /tmp
+
+- name: Remove old file
+  file: path=/usr/local/bin/drupal state=absent
+
+- name: Copy to /usr/local/bin
+  copy: remote_src=true src=/tmp/drupal.phar dest=/usr/local/bin/drupal
+  args:
+    mode: "u=rwx,g=rx,o=rx"
+
+- name: Self-update drupal console
+  shell: /usr/local/bin/drupal self-update

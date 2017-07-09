@@ -4,6 +4,9 @@
 drupal_composer_version: "1.4.1"
 drupal_composer_sha256: "abd277cc3453be980bb48cbffe9d1f7422ca1ef4bc0b7d035fda87cea4d55cbc"
 
+drupal_console_version: "﻿1.0.0-rc23"
+drupal_console_sha256: "acfc42f11c0a8e794f7bd5a1eb45f687fc3f09a3cedbc39b582d6ecee3375669"
+
 drupal_drush_user: drush
 
 drupal_nginx_user: www-data
